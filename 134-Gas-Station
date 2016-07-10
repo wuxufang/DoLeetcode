@@ -1,0 +1,50 @@
+/**
+这一题竟然想了两三天，最后思路才明朗。首先，o(n^2)的算法复杂度不能通过提交。刚开始分析问题后，认为应该 left[i]=gas[i]-cost[i] 这样简化问题
+。left[i]构成的环里由哪一个点开始，一路加下去不会出现负的结果才是符合要求的Pos。由于时间复杂度肯定是o（n），怎么样遍历一遍或多遍得出结果，
+接着又认为，就是一个被负数分割的环，形成多个正数块，然后如果有解就应该是正数块的和的最大值的那一块的开始点是正解。也就是这样解：第一次遍历
+得到left[i],得到max[i](i块正数和的值）和pos[i](i块的起始点），然后在得到Max(max[i])和其相应开始点，最后再拿这个开始点去相加一遍进行验证。
+写起来发现很麻烦，程序各种问题，然后到vs里各种调试，最后写完提交测试样例，出现问题，这样的想法不对。。。。。。。。
+**/
+/**
+快想放弃了，尼玛一破题想这么久还不对。又根据上面的错误样例，分析了下，发现这样的事实，sum(left[i]...left[n])<0,则[i,n]里任意x,sum(left[x]
+....left[n])<0,即[i,n]里绝对没有正确的起始点。这样求和一遍，sum>0,Pos不变，sum<0则sum=0，Pos为下一个出现的正数。而且这样下去再把出现的
+sun<0的值相加得到neg，如果最后sum>0,则sum+neg>=0,就表示确实有解，而且为Pos。
+**/
+
+/**
+vector<int>left; 
+left.push_back(i);//容器增加，插入元素用push_back!!!!!!!!!!!!!!! 不能直接用left[i]=x!!!否则 vector subscript out of range
+left[i]=x; //这表示容器i个元素已经插入了 这是修改i元素！！！！！！！！！！！！
+**/
+
+class Solution {
+public:
+    int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
+        int N=gas.size(); vector<int>left;int sum=0; int neg=0;int Pos=0;
+        int flag=0;
+        for(int i=0;i<N;i++)
+        {
+           left.push_back(gas[i]-cost[i]);
+           sum+=left[i];
+           if(sum<0)
+           {
+               Pos=-1;
+               flag=0;     //此处sum加了负数，发生断点，Pos到断点间的任何一个都不能作为起点
+               neg+=sum;   //负数的和  循环到最后正数sum +neg>0 才会有解
+               sum=0;
+               continue;
+           }
+           
+           if(flag==0&&left[i]>0)  //前面发生了断点 此处left[i]>0,设其为Pos
+           {
+               Pos=i;
+               flag=1;        //已经有了Pos 继续求和
+           }
+           
+        }
+        if(Pos!=-1&&sum+neg>=0)
+        return Pos;
+        else
+        return -1;
+    }
+};
