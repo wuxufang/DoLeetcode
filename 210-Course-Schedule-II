@@ -1,0 +1,45 @@
+/**
+图的拓扑排序，不过这个图不是用邻接矩阵表示的，而是直接用vector<pair<int,int>> 所有边的集合来表示
+**/
+/**
+拓扑排序的主要过程，找到一个入度为0的点，放进stack，当stack不空的时候循环，从图中去掉该点如果有入度为0的点在放进stack
+最后曾经放进stack的点的数目 < 图的总数目则图中有环。
+**/
+class Solution {
+public:
+    vector<int> findOrder(int numCourses, vector<pair<int, int>>& prerequisites) {
+        vector<int> rlt;
+        map<int,vector<int>>fromto; //存储图的信息，fromto[i]指向的所有点存在fromto[i].vector<int>
+        map<int,int>indegree; //每个点的入度
+        stack<int> zstack;
+        for(int i=0;i<prerequisites.size();i++)
+        {
+            fromto[prerequisites[i].second].push_back(prerequisites[i].first);
+            indegree[prerequisites[i].first]++;
+        }
+        for(int i=0;i<numCourses;i++)
+        {
+            if(indegree[i]==0)
+            zstack.push(i);
+        }
+        while(!zstack.empty())
+        {
+            int top=zstack.top();
+            rlt.push_back(top);
+            zstack.pop();
+            for(std::vector<int>::iterator it=fromto[top].begin();it!=fromto[top].end();it++)
+            {
+                if(--indegree[*it]==0)
+                zstack.push(*it);
+            }
+            
+        }
+        if(rlt.size()==numCourses)
+        return rlt;
+        else
+        {
+            rlt.clear();
+            return rlt;
+        }
+    }
+};
